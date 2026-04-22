@@ -81,9 +81,15 @@ def post_calendar():
     try:
         processed_items = []
         for item in data:
-            # Create new record
+            # Create new record if uid is not exist
+            uid = item.get("uid")
+            if uid:
+                calendar = Calendar.query.get(uid)
+                if calendar:
+                    continue
+
             new_calendar = Calendar(
-                uid=item.get("uid"),
+                uid=uid,
                 summary=item.get("summary"),
                 description=item.get("description"),
                 last_modified=item.get("last_modified"),
