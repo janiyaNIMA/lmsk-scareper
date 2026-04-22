@@ -1,6 +1,15 @@
 # LMSK Scraper API
 
-A Flask-based REST API for managing Moodle LMS calendar events scraped from various sources.
+A modular, OOP-based Flask REST API for managing Moodle LMS data, including calendar events, courses, sections, and activities.
+
+## Project Architecture
+
+The project follows a modular structure to ensure separation of concerns and maintainability:
+
+- **`main.py`**: Entry point. Orchestrates the Flask application using the `LMSKApi` class.
+- **`models.py`**: Defines the SQLAlchemy database schema and relationships.
+- **`repository.py`**: Implements the Repository Pattern, encapsulating all database operations and business logic.
+- **`database.py`**: Holds the shared `SQLAlchemy` instance to avoid circular imports.
 
 ## Getting Started
 
@@ -9,7 +18,7 @@ A Flask-based REST API for managing Moodle LMS calendar events scraped from vari
 - [uv](https://github.com/astral-sh/uv) (recommended)
 
 ### Installation & Running
-1. Clone the repository
+1. Clone the repository.
 2. Install dependencies and run the server:
    ```bash
    uv run main.py
@@ -19,47 +28,52 @@ A Flask-based REST API for managing Moodle LMS calendar events scraped from vari
 ## API Endpoints
 
 ### 1. General
-- **GET `/`**
-  - Description: Welcome message.
-  - Response: `{"message": "Welcome to fasnet LMS Scraper.!"}`
+- **GET `/`**: Welcome message.
 
-### 2. Calendar Events
+### 2. Courses (with Nested Sections & Activities)
+- **GET `/lmsk/course`**: Retrieve all courses.
+- **GET `/lmsk/course/<id>`**: Retrieve a course by ID (includes nested sections and activities).
+- **POST `/lmsk/course`**: Create one or more courses.
+- **PUT `/lmsk/course/<id>`**: Update course details.
+- **DELETE `/lmsk/course/<id>`**: Delete a course and all its related data (cascading).
 
-- **GET `/lmsk/calender`**
-  - Description: Retrieve all calendar events.
-  - Response: Array of Calendar objects.
+### 3. Sections
+- **GET `/lmsk/section`**: Retrieve all sections.
+- **POST `/lmsk/section`**: Create a section linked to a `course_id`.
 
-- **GET `/lmsk/calender/<id>`**
-  - Description: Retrieve a single calendar event by its database ID.
-  - Response: Calendar object or 404 error.
+### 4. Activities
+- **GET `/lmsk/activity`**: Retrieve all activities.
+- **POST `/lmsk/activity`**: Create an activity linked to a `course_id` and `section_id`.
 
-- **POST `/lmsk/calender`**
-  - Description: Create one or more calendar events.
-  - Request Body: A single Calendar object OR a list of Calendar objects.
-  - Response: The created object(s) with 201 status.
+### 5. Calendar Events
+- **GET `/lmsk/calender`**: Retrieve all calendar events.
+- **POST `/lmsk/calender`**: Create calendar events (checks for duplicate `uid`).
 
-- **PUT `/lmsk/calender/<id>`**
-  - Description: Update an existing calendar event.
-  - Request Body: JSON with fields to update.
-  - Response: The updated Calendar object.
+## Data Models
 
-- **DELETE `/lmsk/calender/<id>`**
-  - Description: Delete a calendar event.
-  - Response: Success message.
-
-## Data Model
-
+### Course
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `id` | Integer | Primary Key (auto-generated) |
-| `uid` | String | Unique Identifier (required) |
-| `summary` | String | Event title/summary |
-| `description` | Text | Detailed description |
-| `last_modified` | String | Timestamp of last modification |
-| `dt_stamp` | String | Creation timestamp |
-| `dt_start` | String | Event start time |
-| `dt_end` | String | Event end time |
-| `categories` | String | Event categories (e.g. Course name) |
+| `id` | Integer | Primary Key |
+| `name` | String | Short name (e.g., STAT 1213) |
+| `full_name` | String | Detailed name |
+
+### Section
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Integer | Primary Key |
+| `course_id` | Integer | Foreign Key to Course |
+| `title` | String | Section title |
+
+### Activity
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Integer | Primary Key |
+| `course_id` | Integer | Foreign Key to Course |
+| `section_id` | Integer | Foreign Key to Section |
+| `activity_name`| String | Name of the activity |
+| `activity_type`| String | Type (resource, assignment, etc.) |
+| `resource_url` | String | Moodle URL |
 
 ## Database
-The API uses SQLite (`lmsk.db`) stored in the `instance/` folder. The tables are automatically created on first run.
+The API uses SQLite (`lmsk.db`) stored in the `instance/` folder. Relationships are configured with `cascade delete`, meaning deleting a course will automatically remove its sections and activities.

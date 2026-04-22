@@ -3,6 +3,10 @@ from models import Calendar, Course, Sections, Activities
 
 
 class CalendarRepository:
+    """
+    Handles all database operations for the Calendar entity.
+    Encapsulates CRUD logic and validation (e.g., duplicate UID check).
+    """
     @staticmethod
     def get_all():
         return Calendar.query.all()
@@ -74,6 +78,10 @@ class CalendarRepository:
 
 
 class CourseRepository:
+    """
+    Handles all database operations for the Course entity.
+    Provides methods for CRUD operations and retrieval by name.
+    """
     @staticmethod
     def get_all():
         return Course.query.all()
@@ -133,6 +141,10 @@ class CourseRepository:
 
 
 class ActivityRepository:
+    """
+    Handles all database operations for Activities.
+    Manages relationships between Courses, Sections, and Activities.
+    """
     @staticmethod
     def get_all():
         return Activities.query.all()
@@ -198,6 +210,9 @@ class ActivityRepository:
 
 
 class SectionRepository:
+    """
+    Handles all database operations for Sections.
+    """
     @staticmethod
     def get_all():
         return Sections.query.all()

@@ -9,6 +9,10 @@ from repository import (
 
 
 class LMSKApi:
+    """
+    Main API class for the LMSK Scraper.
+    Handles Flask initialization, configuration, database setup, and route registration.
+    """
     def __init__(self):
         self.app = Flask(__name__)
         self.setup_config()
