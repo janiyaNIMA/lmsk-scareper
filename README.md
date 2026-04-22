@@ -53,14 +53,13 @@ A Flask-based REST API for managing Moodle LMS calendar events scraped from vari
 | :--- | :--- | :--- |
 | `id` | Integer | Primary Key (auto-generated) |
 | `uid` | String | Unique Identifier (required) |
+| `summary` | String | Event title/summary |
+| `description` | Text | Detailed description |
 | `last_modified` | String | Timestamp of last modification |
 | `dt_stamp` | String | Creation timestamp |
 | `dt_start` | String | Event start time |
 | `dt_end` | String | Event end time |
 | `categories` | String | Event categories (e.g. Course name) |
-| `end` | String | Alternative end time field |
-| `summary` | String | Event title/summary |
-| `description` | Text | Detailed description |
 
 ## Database
 The API uses SQLite (`lmsk.db`) stored in the `instance/` folder. The tables are automatically created on first run.
