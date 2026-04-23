@@ -5,6 +5,8 @@ from repository import (
     CourseRepository,
     ActivityRepository,
     SectionRepository,
+    MetadataRepository,
+    EventRepository,
 )
 
 
@@ -13,6 +15,7 @@ class LMSKApi:
     Main API class for the LMSK Scraper.
     Handles Flask initialization, configuration, database setup, and route registration.
     """
+
     def __init__(self):
         self.app = Flask(__name__)
         self.setup_config()
@@ -32,6 +35,32 @@ class LMSKApi:
         @self.app.get("/")
         def index():
             return jsonify({"message": "Welcome to fasnet LMS Scraper.!"})
+
+        # Metadata Routes
+        @self.app.get("/lmsk/metadata")
+        def get_metadatas():
+            metadata = MetadataRepository.get_all()
+            return jsonify([item.to_dict() for item in metadata])
+
+        @self.app.get("/lmsk/metadata/<int:id>")
+        def get_metadata(id):
+            metadata = MetadataRepository.get_by_id(id)
+            if metadata:
+                return jsonify(metadata.to_dict())
+            return jsonify({"error": "Metadata not found"}), 404
+
+        @self.app.post("/lmsk/metadata")
+        def post_metadata():
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "Invalid data format"}), 400
+
+            try:
+                processed_items = MetadataRepository.create(data)
+                return jsonify([item.to_dict() for item in processed_items]), 201
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"error": str(e)}), 500
 
         # Course Routes
         @self.app.get("/lmsk/course")
@@ -193,8 +222,27 @@ class LMSKApi:
                 return jsonify({"message": "Calendar deleted successfully"})
             return jsonify({"error": "Calendar not found"}), 404
 
+        # Event Routes
+        @self.app.get("/lmsk/event")
+        def get_events():
+            events = EventRepository.get_all()
+            return jsonify([item.to_dict() for item in events])
+
+        @self.app.post("/lmsk/event")
+        def post_event():
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "Invalid data format"}), 400
+
+            try:
+                processed_items = EventRepository.create(data)
+                return jsonify([item.to_dict() for item in processed_items]), 201
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"error": str(e)}), 500
+
     def run(self, debug=True):
-        self.app.run(debug=debug)
+        self.app.run(debug=debug, host="0.0.0.0")
 
 
 if __name__ == "__main__":

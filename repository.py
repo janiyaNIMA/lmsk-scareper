@@ -1,5 +1,37 @@
 from database import db
-from models import Calendar, Course, Sections, Activities
+from models import Calendar, Course, Sections, Activities, Metadata, Event
+
+
+class MetadataRepository:
+    """
+    Handles all database operations for the Metadata entity.
+    Encapsulates CRUD logic and validation (e.g., duplicate UID check).
+    """
+
+    @staticmethod
+    def get_all():
+        return Metadata.query.all()
+
+    @staticmethod
+    def get_by_id(metadata_id):
+        return Metadata.query.get(metadata_id)
+
+    @staticmethod
+    def create(data):
+        if isinstance(data, dict):
+            data = [data]
+
+        processed_items = []
+        for item in data:
+            new_metadata = Metadata(
+                scraped_at=item.get("scraped_at"),
+                source=item.get("source"),
+            )
+            db.session.add(new_metadata)
+            processed_items.append(new_metadata)
+
+        db.session.commit()
+        return processed_items
 
 
 class CalendarRepository:
@@ -7,6 +39,7 @@ class CalendarRepository:
     Handles all database operations for the Calendar entity.
     Encapsulates CRUD logic and validation (e.g., duplicate UID check).
     """
+
     @staticmethod
     def get_all():
         return Calendar.query.all()
@@ -82,6 +115,7 @@ class CourseRepository:
     Handles all database operations for the Course entity.
     Provides methods for CRUD operations and retrieval by name.
     """
+
     @staticmethod
     def get_all():
         return Course.query.all()
@@ -145,6 +179,7 @@ class ActivityRepository:
     Handles all database operations for Activities.
     Manages relationships between Courses, Sections, and Activities.
     """
+
     @staticmethod
     def get_all():
         return Activities.query.all()
@@ -176,7 +211,7 @@ class ActivityRepository:
                 activity_type=item.get("activity_type"),
                 activity_name=activity_name,
                 resource_url=item.get("resource_url"),
-                info=item.get("info")
+                info=item.get("info"),
             )
             db.session.add(new_activity)
             processed_items.append(new_activity)
@@ -213,6 +248,7 @@ class SectionRepository:
     """
     Handles all database operations for Sections.
     """
+
     @staticmethod
     def get_all():
         return Sections.query.all()
@@ -268,3 +304,35 @@ class SectionRepository:
         db.session.delete(section)
         db.session.commit()
         return True
+
+class EventRepository:
+    """
+    Handles all database operations for the Event entity.
+    """
+
+    @staticmethod
+    def get_all():
+        return Event.query.all()
+
+    @staticmethod
+    def get_by_id(event_id):
+        return Event.query.get(event_id)
+
+    @staticmethod
+    def create(data):
+        if isinstance(data, dict):
+            data = [data]
+
+        processed_items = []
+        for item in data:
+            new_event = Event(
+                name=item.get("name"),
+                url=item.get("url"),
+                course_name=item.get("course_name"),
+                due_date=item.get("due_date"),
+            )
+            db.session.add(new_event)
+            processed_items.append(new_event)
+
+        db.session.commit()
+        return processed_items
