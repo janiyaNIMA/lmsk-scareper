@@ -45,11 +45,45 @@ The project follows a modular structure to ensure separation of concerns and mai
 - **GET `/lmsk/activity`**: Retrieve all activities.
 - **POST `/lmsk/activity`**: Create an activity linked to a `course_id` and `section_id`.
 
-### 5. Calendar Events
+### 5. Calendar Events (ICS)
 - **GET `/lmsk/calender`**: Retrieve all calendar events.
 - **POST `/lmsk/calender`**: Create calendar events (checks for duplicate `uid`).
 
+### 6. Timeline Events
+- **GET `/lmsk/event`**: Retrieve all timeline events.
+- **POST `/lmsk/event`**: Create timeline events.
+
+### 7. Metadata
+- **GET `/lmsk/metadata`**: Retrieve all scraping metadata.
+- **POST `/lmsk/metadata`**: Save new scraping metadata.
+
 ## Data Models
+
+### Metadata
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Integer | Primary Key |
+| `scraped_at` | String | ISO timestamp of the scrape |
+| `source` | String | Source URL of the data |
+
+### Event (Timeline)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Integer | Primary Key |
+| `name` | String | Name of the event |
+| `url` | String | Link to the event |
+| `course_name`| String | Name of the course |
+| `due_date` | String | Due date string |
+
+### Calendar (ICS)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Integer | Primary Key |
+| `uid` | String | Unique Identifier (from ICS) |
+| `summary` | String | Event summary |
+| `description`| Text | Event description |
+| `dt_start` | String | Start time |
+| `dt_end` | String | End time |
 
 ### Course
 | Field | Type | Description |
